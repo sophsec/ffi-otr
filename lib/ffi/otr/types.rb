@@ -4,12 +4,12 @@ module FFI
   module OTR
     extend FFI::Library
 
-    typedef :uint, :gpg_error_t
+    typedef :uint,        :gpg_error_t
     typedef :gpg_error_t, :gcry_error_t
-    typedef :pointer, :gcry_mpi_t
-    typedef :pointer, :gcry_md_hd_t
-    typedef :pointer, :gcry_cipher_hd_t
-    typedef :pointer, :gcry_sexp_t
+    typedef :pointer,     :gcry_mpi_t
+    typedef :pointer,     :gcry_md_hd_t
+    typedef :pointer,     :gcry_cipher_hd_t
+    typedef :pointer,     :gcry_sexp_t
 
     # auth.h
     enum :otrl_auth_state, [
@@ -83,9 +83,9 @@ module FFI
     ]
 
     enum :otrl_smprog_state, [
-      :ok, 0,
-      :created, -2,
-      :failed, -1,
+      :ok,        0,
+      :created,   -2,
+      :failed,    -1,
       :succeeded, 1
     ]
 

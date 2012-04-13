@@ -123,8 +123,8 @@ module FFI
     # @return [String]
     #   The version string of the library.
     #
-    def OTR.version
-      OTR.otrl_version
+    def self.version
+      otrl_version
     end
   end
 end
