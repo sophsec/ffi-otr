@@ -6,6 +6,7 @@ module FFI
   module OTR
     extend FFI::Library
 
+    ffi_lib_flags :now, :global
     ffi_lib 'otr'
 
     # auth.h
