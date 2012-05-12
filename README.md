@@ -14,7 +14,7 @@ Ruby FFI bindings for the [Off-The-Record (OTR) Messaging Library](http://otr.cy
 
 ## Requirements
 
-* [libotr](http://otr.cypherpunks.ca/) >= 3.2.0
+* [libotr](http://otr.cypherpunks.ca/) >= 2.0.0
 * [ffi](http://github.com/ffi/ffi) ~> 1.0
 
 ## Install
