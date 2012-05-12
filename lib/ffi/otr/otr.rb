@@ -7,7 +7,7 @@ module FFI
     extend FFI::Library
 
     ffi_lib_flags :now, :global
-    ffi_lib 'otr'
+    ffi_lib ['otr', 'libotr.so.2']
 
     # auth.h
     attach_function :otrl_auth_new, [:pointer], :void
