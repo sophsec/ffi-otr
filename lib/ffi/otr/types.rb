@@ -44,6 +44,47 @@ module FFI
       :info
     ]
 
+    callback :policy_cb, [:pointer, :pointer], :uint
+    callback :create_privkey_cb, [:pointer, :string, :string], :void
+    callback :is_logged_in_cb, [:pointer, :string, :string, :string], :void
+    callback :inject_message_cb, [:pointer, :string, :string, :string, :string], :void
+    callback :notify_cb, [:pointer, :pointer, :string, :string, :string, :string, :string, :string], :void
+    callback :display_otr_message_cb, [:pointer, :string, :string, :string, :string], :void
+    callback :update_context_list_cb, [:pointer], :void
+    callback :protocol_name_cb, [:pointer, :string], :void
+    callback :protocol_name_free_cb, [:pointer, :string], :void
+    callback :new_fingerprint_cb, [:pointer, :pointer, :string, :string, :string, :string], :void
+    callback :write_fingerprints_cb, [:pointer], :void
+    callback :gone_secure_cb, [:pointer, :pointer, :int], :void
+    callback :gone_insecure_cb, [:pointer, :pointer], :void
+    callback :still_secure_cb, [:pointer, :pointer, :int, :int], :void
+    callback :log_message_cb, [:pointer, :string], :void
+    callback :max_message_size_cb, [:pointer, :pointer], :int
+    callback :account_name_cb, [:pointer, :string, :string], :string
+    callback :account_name_free_cb, [:pointer, :pointer, :string], :void
+
+
+    class OtrlMessageAppOps < FFI::Struct
+      layout :policy_cb, :policy_cb,
+      :create_privkey_cb, :create_privkey_cb,
+      :is_logged_in_cb, :is_logged_in_cb,
+      :inject_message_cb, :inject_message_cb,
+      :notify_cb, :notify_cb,
+      :display_otr_message_cb, :display_otr_message_cb,
+      :update_context_list_cb, :update_context_list_cb,
+      :protocol_name_cb, :protocol_name_cb,
+      :protocol_name_free_cb, :protocol_name_free_cb,
+      :new_fingerprint_cb, :new_fingerprint_cb,
+      :write_fingerprints_cb, :write_fingerprints_cb,
+      :gone_secure_cb, :gone_secure_cb,
+      :gone_insecure_cb, :gone_insecure_cb,
+      :still_secure_cb, :still_secure_cb,
+      :log_message_cb, :log_message_cb,
+      :max_message_size_cb, :max_message_size_cb,
+      :account_name_cb, :account_name_cb,
+      :account_name_free_cb, :account_name_free_cb
+    end
+
     # proto.h
     typedef :uint, :otrl_policy
 

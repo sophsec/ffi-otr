@@ -54,8 +54,8 @@ module FFI
 
     # message.h
     attach_function :otrl_message_free, [:pointer], :void
-    attach_function :otrl_message_sending, [:otrl_user_state, :pointer, :pointer, :string, :string, :string, :string, :pointer, :pointer, :add_app_data, :pointer], :gcry_error_t
-    attach_function :otrl_message_receiving, [:otrl_user_state, :pointer, :pointer, :string, :string, :string, :string, :pointer, :pointer, :add_app_data, :pointer], :int
+    attach_function :otrl_message_sending, [:otrl_user_state, OtrlMessageAppOps, :pointer, :string, :string, :string, :string, :pointer, :pointer, :add_app_data, :pointer], :gcry_error_t
+    attach_function :otrl_message_receiving, [:otrl_user_state, OtrlMessageAppOps, :pointer, :string, :string, :string, :string, :pointer, :pointer, :add_app_data, :pointer], :int
     attach_function :otrl_message_fragment_and_send, [:pointer, :pointer, :pointer, :string, :otrl_fragment_policy, :pointer], :gcry_error_t
     attach_function :otrl_message_disconnect, [:otrl_user_state, :pointer, :pointer, :string, :string, :string], :void
     attach_function :otrl_message_initiate_smp, [:otrl_user_state, :pointer, :pointer, :pointer, :buffer_in, :size_t], :void
@@ -65,7 +65,7 @@ module FFI
 
     # privkey.h
     attach_function :otrl_privkey_hash_to_human, [:buffer_out, :buffer_in], :void
-    attach_function :otrl_privkey_fingerprint, [:otrl_user_state, :buffer_out, :string, :string], :buffer_out
+    attach_function :otrl_privkey_fingerprint, [:otrl_user_state, :buffer_out, :string, :string], :pointer
     attach_function :otrl_privkey_fingerprint_raw, [:otrl_user_state, :buffer_out, :string, :string], :buffer_out
     attach_function :otrl_privkey_read, [:otrl_user_state, :string], :gcry_error_t
     attach_function :otrl_privkey_read_FILEp, [:otrl_user_state, :pointer], :gcry_error_t
@@ -117,6 +117,26 @@ module FFI
     # userstate.h
     attach_function :otrl_userstate_create, [], :otrl_user_state
     attach_function :otrl_userstate_free, [:otrl_user_state], :void
+
+
+    # proto.h
+
+    POLICY_ALLOW_V1 = 0x01
+    POLICY_ALLOW_V2 = 0x02
+    POLICY_REQUIRE_ENCRYPTION = 0x04
+    POLICY_SEND_WHITESPACE_TAG = 0x08
+    POLICY_WHITESPACE_START_AKE = 0x10
+    POLICY_ERROR_START_AKE = 0x20
+
+    POLICY_VERSION_MASK = POLICY_ALLOW_V1 | POLICY_ALLOW_V2
+
+    POLICY_NEVER = 0x00
+    POLICY_OPPORTUNISTIC = POLICY_ALLOW_V1 | POLICY_ALLOW_V2 |
+      POLICY_SEND_WHITESPACE_TAG | POLICY_WHITESPACE_START_AKE | POLICY_ERROR_START_AKE
+    POLICY_MANUAL = POLICY_ALLOW_V1 | POLICY_ALLOW_V2
+    POLICY_ALWAYS = POLICY_ALLOW_V1 | POLICY_ALLOW_V2 |
+      POLICY_REQUIRE_ENCRYPTION | POLICY_WHITESPACE_START_AKE | POLICY_ERROR_START_AKE
+    POLICY_DEFAULT = POLICY_OPPORTUNISTIC
 
     #
     # The version of the OTR library.
