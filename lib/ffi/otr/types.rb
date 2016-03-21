@@ -44,45 +44,45 @@ module FFI
       :info
     ]
 
-    callback :policy_cb, [:pointer, :pointer], :uint
-    callback :create_privkey_cb, [:pointer, :string, :string], :void
-    callback :is_logged_in_cb, [:pointer, :string, :string, :string], :void
-    callback :inject_message_cb, [:pointer, :string, :string, :string, :string], :void
-    callback :notify_cb, [:pointer, :pointer, :string, :string, :string, :string, :string, :string], :void
-    callback :display_otr_message_cb, [:pointer, :string, :string, :string, :string], :void
-    callback :update_context_list_cb, [:pointer], :void
-    callback :protocol_name_cb, [:pointer, :string], :void
-    callback :protocol_name_free_cb, [:pointer, :string], :void
-    callback :new_fingerprint_cb, [:pointer, :pointer, :string, :string, :string, :string], :void
-    callback :write_fingerprints_cb, [:pointer], :void
-    callback :gone_secure_cb, [:pointer, :pointer, :int], :void
-    callback :gone_insecure_cb, [:pointer, :pointer], :void
-    callback :still_secure_cb, [:pointer, :pointer, :int, :int], :void
-    callback :log_message_cb, [:pointer, :string], :void
-    callback :max_message_size_cb, [:pointer, :pointer], :int
-    callback :account_name_cb, [:pointer, :string, :string], :string
-    callback :account_name_free_cb, [:pointer, :pointer, :string], :void
+    callback :policy, [:pointer, :pointer], :uint
+    callback :create_privkey, [:pointer, :string, :string], :void
+    callback :is_logged_in, [:pointer, :string, :string, :string], :void
+    callback :inject_message, [:pointer, :string, :string, :string, :string], :void
+    callback :notify, [:pointer, :pointer, :string, :string, :string, :string, :string, :string], :void
+    callback :display_otr_message, [:pointer, :string, :string, :string, :string], :void
+    callback :update_context_list, [:pointer], :void
+    callback :protocol_name, [:pointer, :string], :void
+    callback :protocol_name_free, [:pointer, :string], :void
+    callback :new_fingerprint, [:pointer, :pointer, :string, :string, :string, :string], :void
+    callback :write_fingerprints, [:pointer], :void
+    callback :gone_secure, [:pointer, :pointer, :int], :void
+    callback :gone_insecure, [:pointer, :pointer], :void
+    callback :still_secure, [:pointer, :pointer, :int, :int], :void
+    callback :log_message, [:pointer, :string], :void
+    callback :max_message_size, [:pointer, :pointer], :int
+    callback :account_name, [:pointer, :string, :string], :string
+    callback :account_name_free, [:pointer, :pointer, :string], :void
 
 
     class OtrlMessageAppOps < FFI::Struct
-      layout :policy_cb, :policy_cb,
-      :create_privkey_cb, :create_privkey_cb,
-      :is_logged_in_cb, :is_logged_in_cb,
-      :inject_message_cb, :inject_message_cb,
-      :notify_cb, :notify_cb,
-      :display_otr_message_cb, :display_otr_message_cb,
-      :update_context_list_cb, :update_context_list_cb,
-      :protocol_name_cb, :protocol_name_cb,
-      :protocol_name_free_cb, :protocol_name_free_cb,
-      :new_fingerprint_cb, :new_fingerprint_cb,
-      :write_fingerprints_cb, :write_fingerprints_cb,
-      :gone_secure_cb, :gone_secure_cb,
-      :gone_insecure_cb, :gone_insecure_cb,
-      :still_secure_cb, :still_secure_cb,
-      :log_message_cb, :log_message_cb,
-      :max_message_size_cb, :max_message_size_cb,
-      :account_name_cb, :account_name_cb,
-      :account_name_free_cb, :account_name_free_cb
+      layout :policy, :policy,
+      :create_privkey, :create_privkey,
+      :is_logged_in, :is_logged_in,
+      :inject_message, :inject_message,
+      :notify, :notify,
+      :display_otr_message, :display_otr_message,
+      :update_context_list, :update_context_list,
+      :protocol_name, :protocol_name,
+      :protocol_name_free, :protocol_name_free,
+      :new_fingerprint, :new_fingerprint,
+      :write_fingerprints, :write_fingerprints,
+      :gone_secure, :gone_secure,
+      :gone_insecure, :gone_insecure,
+      :still_secure, :still_secure,
+      :log_message, :log_message,
+      :max_message_size, :max_message_size,
+      :account_name, :account_name,
+      :account_name_free, :account_name_free
     end
 
     # proto.h

@@ -85,11 +85,8 @@ class FFI::OTR::UserState
   # Setup the OtrlMessageAppOps with our callbacks.
   def setup_ui_ops
     @ui_ops = OtrlMessageAppOps.new
-    [ :policy, :create_privkey, :is_logged_in, :inject_message, :notify,
-      :display_otr_message, :protocol_name, :protocol_name_free, :new_fingerprint,
-      :write_fingerprints, :gone_secure, :gone_insecure, :still_secure, :log_message,
-      :max_message_size, :account_name, :account_name_free ].each do |name|
-      @ui_ops["#{name}_cb".to_sym] = ->(*a) { method(name).call(*a) }
+    @ui_ops.layout.fields.each do |field|
+      @ui_ops[field.name] = ->(*a) { method(field.name).call(*a) }
     end
   end
 
