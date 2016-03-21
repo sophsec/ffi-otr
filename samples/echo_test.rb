@@ -1,7 +1,7 @@
 require 'xmpp4r-simple'
 require 'ffi/otr'
 
-FFI::OTR.otrl_init(3, 2, 1)
+FFI::OTR.otrl_init(4, 1, 1)
 
 if ARGV.empty?
   puts "usage: #{__FILE__} <jid> <pass>"
@@ -16,16 +16,13 @@ class MyUserState < FFI::OTR::UserState
     super(account, protocol,
           privkey: "echo_test.key.otr",
           fingerprints: "echo_test.prints.otr",
+          instags: "echo_test.instag.otr",
           policy: FFI::OTR::POLICY_ALWAYS,
           debug: true)
   end
 
   def inject_message opdata, account, protocol, recipient, message
     @jabber.deliver(recipient, message)
-  end
-
-  def display_otr_message opdata, account, protocol, from, msg
-    puts "#{from}: #{msg}"
   end
 
 end

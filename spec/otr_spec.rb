@@ -2,87 +2,92 @@ $: << "../lib"
 
 require 'fileutils'
 require "ffi/otr"
-FFI::OTR.otrl_init(3, 2, 1)
+FFI::OTR.otrl_init(4, 1, 1)
 
 describe FFI::OTR do
 
-  include FFI::OTR
-
-  WHITESPACE_TAG = " \t  \t\t\t\t \t \t \t   \t \t  \t   \t\t  \t "
+  WHITESPACE_TAG = " \t  \t\t\t\t \t \t \t    \t\t  \t   \t\t  \t\t"
   before :each do
-    @user1 = FFI::OTR::UserState.new("user1", "xmpp", privkey: "spec/fixtures/keys.1.otr")
-    @user2 = FFI::OTR::UserState.new("user2", "xmpp", privkey: "spec/fixtures/keys.2.otr")
+    FileUtils.rm_f("spec/fixtures/fingerprints.1.otr")
+    FileUtils.rm_f("spec/fixtures/fingerprints.2.otr")
+    @user1 = FFI::OTR::UserState.new("user1", "xmpp",
+                               privkey: "spec/fixtures/keys.1.otr",
+                               fingerprints: "spec/fixtures/prints.1.otr",
+                               instags: "spec/fixtures/instags.2.otr",
+                               debug: false)
+    @user2 = FFI::OTR::UserState.new("user2", "xmpp",
+                               privkey: "spec/fixtures/keys.2.otr",
+                               fingerprints: "spec/fixtures/prints.2.otr",
+                               instags: "spec/fixtures/instags.2.otr",
+                               debug: false)
   end
 
   it "should create userstate" do
-    @user1.userstate.null?.should == false
-    @user1.ui_ops.should be_a(FFI::OTR::OtrlMessageAppOps)
+    expect(@user1.userstate.null?).to be(false)
+    expect(@user1.ui_ops).to be_a(FFI::OTR::OtrlMessageAppOps)
   end
 
   it "should establish session" do
+    # TAGGEDPLAINTEXT
     @message = @user1.sending("user2", "hi")
-    @message.should == "hi#{WHITESPACE_TAG}"
-    @user2.should_receive(:inject_message) {|_, account, protocol, to, message|
-      [account, protocol, to].should == ["user2", "xmpp", "user1"]
-      (@message = message).should =~ /\?OTR:/
+    expect(@message).to eql("hi#{WHITESPACE_TAG}")
+
+    # DH_COMMIT
+    expect(@user2).to receive(:inject_message) {|_, account, protocol, to, message|
+      expect([account, protocol, to]).to eql(["user2", "xmpp", "user1"])
+      expect(@message = message).to match(/\?OTR:/)
     }
-    @user2.receiving("user1", @message).should == "hi"
+    # Note that @message is still the one returned by @user1.sending
+    expect(@user2.receiving("user1", @message)).to eql("hi")
 
-    @user1.should_receive(:inject_message) {|_, account, protocol, to, message|
-      [account, protocol, to].should == ["user1", "xmpp", "user2"]
-      (@message = message).should =~ /\?OTR:/
+    # DH_KEY
+    expect(@user1).to receive(:inject_message) {|_, account, protocol, to, message|
+      expect([account, protocol, to]).to eql(["user1", "xmpp", "user2"])
+      expect(@message = message).to match(/\?OTR:/)
     }
-    @user1.receiving("user2", @message).should == nil
+    expect(@user1.receiving("user2", @message)).to be(nil)
 
-    @user2.should_receive(:inject_message) {|_, account, protocol, to, message|
-      [account, protocol, to].should == ["user2", "xmpp", "user1"]
-      (@message = message).should =~ /\?OTR:/
+    # REVEALSIG
+    expect(@user2).to receive(:inject_message) {|_, account, protocol, to, message|
+      expect([account, protocol, to]).to eql(["user2", "xmpp", "user1"])
+      expect(@message = message).to match(/\?OTR:/)
     }
-    @user2.receiving("user1", @message).should == nil
+    expect(@user2.receiving("user1", @message)).to be(nil)
 
-    @user1.should_receive(:new_fingerprint) {|_, _, account, protocol, from, fingerprint|
-      [account, protocol, from].should == ["user1", "xmpp", "user2"]
-      fingerprint.should == "\xBBN\xE8a\x8E&\xFD\\\xCB\xC7\xF1\x9F\x87\x9A\x18<*oCz"
+    # SIGNATURE
+    expect(@user1).to receive(:gone_secure) # TODO
+
+    expect(@user1).to receive(:inject_message) {|_, account, protocol, to, message|
+      expect([account, protocol, to]).to eql(["user1", "xmpp", "user2"])
+      expect(@message = message).to match(/\?OTR:/)
     }
-    @user1.should_receive(:write_fingerprints) {
-      @user1.privkey_write_fingerprints("spec/fixtures/fingerprints.1.otr") }
-    @user1.should_receive(:gone_secure)
-    @user1.should_receive(:inject_message) {|_, account, protocol, to, message|
-      [account, protocol, to].should == ["user1", "xmpp", "user2"]
-      (@message = message).should =~ /\?OTR:/
-    }
-    @user1.receiving("user2", @message).should == nil
+    expect(@user1.receiving("user2", @message)).to be(nil)
+    
+    expect(@user2).to receive(:gone_secure) # TODO
+    expect(@user2.receiving("user1", @message)).to be(nil)
 
-    @user2.should_receive(:new_fingerprint) {|_, _, account, protocol, from, fingerprint|
-      [account, protocol, from].should == ["user2", "xmpp", "user1"]
-      fingerprint.should == "\xF5\x01\xA9Q\xB1\xC9x\x9Cb@\xA8\x9B^\x1A{\n}\xC5\xC3L\x01"
-    }
-    @user2.should_receive(:write_fingerprints) {
-      @user2.privkey_write_fingerprints("spec/fixtures/fingerprints.2.otr") }
-    @user2.should_receive(:gone_secure)
-    @user2.receiving("user1", @message).should == nil
-
-
-    m = @user1.sending("user2", "yes, of course!")
-    m.should =~ /\?OTR:/
-    @user2.receiving("user1", m).should =~ /yes/
-
+    plain = "What's going on?"
+    msg = @user1.sending("user2", plain)
+    expect(msg).to match(/^?OTR:/)
+    expect(msg).to_not match(plain)
+    expect(@user2.receiving("user1", msg)).to eql(plain)
+  
     10.times do |i|
       msg = @user1.sending("user2", "foo #{i}")
-      msg.should =~ /\?OTR:/; msg[/foo #{i}/].should == nil
-      @user2.receiving("user1", msg).should == "foo #{i}"
+      expect(msg).to match(/\?OTR:/)
+      expect(msg).to_not match("foo #{i}")
+      expect(@user2.receiving("user1", msg)).to eql("foo #{i}")
       msg = @user2.sending("user1", "bar #{i}")
-      msg.should =~ /\?OTR:/; msg[/bar #{i}/].should == nil
-      @user1.receiving("user2", msg).should == "bar #{i}"
+      expect(msg).to match(/\?OTR:/)
+      expect(msg).to_not match("foo #{i}")
+      expect(@user1.receiving("user2", msg)).to eql("bar #{i}")
     end
 
-    FileUtils.rm_f("spec/fixtures/fingerprints.1.otr")
-    FileUtils.rm_f("spec/fixtures/fingerprints.2.otr")
   end
 
   it "should get fingerprint" do
-    @user1.fingerprint.should == "F501A951 B1C9789C 6240A89B 5E1A7B0A 7DC5C34C"
-    @user2.fingerprint.should == "BB4EE861 8E26FD5C CBC7F19F 879A183C 2A6F437A"
+    expect(@user1.fingerprint).to eql("F501A951 B1C9789C 6240A89B 5E1A7B0A 7DC5C34C")
+    expect(@user2.fingerprint).to eql("BB4EE861 8E26FD5C CBC7F19F 879A183C 2A6F437A")
   end
 
   describe :policy do
@@ -90,12 +95,15 @@ describe FFI::OTR do
     describe :default do
 
       it "should add whitespace tag when sending first message" do
-        @user1.sending("user2", "test").should == "test#{WHITESPACE_TAG}"
+        expect(@user1).to_not receive(:inject_message)
+        expect(@user1.sending("user2", "test")).to eql("test#{WHITESPACE_TAG}")
       end
 
       it "should initiate session when receiving whitespace tag" do
-        @user1.should_receive(:inject_message)
-        @user1.receiving("user2", "test#{WHITESPACE_TAG}").should == "test"
+        expect(@user1).to receive(:inject_message) {|_, account, protocol, recipient, msg|
+          expect(msg).to match(/\?OTR:/)
+          expect(msg).to_not match("test") }
+        expect(@user1.receiving("user2", "test#{WHITESPACE_TAG}")).to eql("test")
       end
 
     end
@@ -105,12 +113,14 @@ describe FFI::OTR do
       before(:each) { @user1.opts[:policy] = FFI::OTR::POLICY_NEVER }
 
       it "should not add whitespace tag when sending first message" do
-        @user1.sending("user2", "test").should == "test"
+        expect(@user1).to_not receive(:inject_message)
+        expect(@user1.sending("user2", "test")).to eql("test")
       end
 
       it "should not initiate session when receiving whitespace tag" do
-        @user1.should_not_receive(:inject_message)
-        @user1.receiving("user2", "test#{WHITESPACE_TAG}").should == "test#{WHITESPACE_TAG}"
+        expect(@user1).to_not receive(:inject_message)
+        expect(@user1.receiving("user2", "test#{WHITESPACE_TAG}"))
+          .to eql("test#{WHITESPACE_TAG}")
       end
 
     end
@@ -120,19 +130,17 @@ describe FFI::OTR do
       before(:each) { @user1.opts[:policy] |= FFI::OTR::POLICY_ALWAYS }
 
       it "should initiate session when sending first message" do
-        @user1.should_receive(:display_otr_message) {|_, account, protocol, from, msg|
-          [account, protocol, from].should ==  ["user1", "xmpp", "user2"]
-          msg.should == "Attempting to start a private conversation..."
-        }
-        @user1.sending("user2", "text").should == "?OTR?v2?\n<b>user1</b> has requested an <a href=\"http://otr.cypherpunks.ca/\">Off-the-Record private conversation</a>.  However, you do not have a plugin to support that.\nSee <a href=\"http://otr.cypherpunks.ca/\">http://otr.cypherpunks.ca/</a> for more information."
+        expect(@user1).to_not receive(:inject_message)
+        expect(@user1).to receive(:handle_msg_event) {|_, event, _, msg, err|
+          expect([event, msg, err]).to eql([:encryption_required, nil, 0]) }
+        expect(@user1.sending("user2", "text"))
+          .to eql("?OTRv23?\n<b>user1</b> has requested an <a href=\"https://otr.cypherpunks.ca/\">Off-the-Record private conversation</a>.  However, you do not have a plugin to support that.\nSee <a href=\"https://otr.cypherpunks.ca/\">https://otr.cypherpunks.ca/</a> for more information.")
       end
 
       it "should warn user when receiving plain message" do
-        @user1.should_receive(:display_otr_message) {|_, account, protocol, from, msg|
-          [account, protocol, from].should ==  ["user1", "xmpp", "user2"]
-          msg.should == "<b>The following message received from user2 was <i>not</i> encrypted: [</b>text<b>]</b>"
-        }
-        @user1.receiving("user2", "text").should == nil
+        expect(@user1).to receive(:handle_msg_event) {|opdata, event, context, msg, err|
+          expect([event, msg, err]).to eql([:rcvdmsg_unrecognized, "text", 0]) }
+        expect(@user1.receiving("user2", "text")).to be(nil)
       end
 
     end
