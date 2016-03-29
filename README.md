@@ -7,7 +7,7 @@
 
 ## Description
 
-Ruby FFI bindings for the [Off-The-Record (OTR) Messaging Library](http://otr.cypherpunks.ca/).
+Ruby FFI bindings for the [Off-The-Record (OTR) Messaging Library][libotr].
 
 ## Examples
 
@@ -23,8 +23,8 @@ See {FFI::OTR::UserState} and {FFI::OTR::Callbacks} for details.
 
 ## Requirements
 
-* [libotr](http://otr.cypherpunks.ca/) >= 3.2.0
-* [ffi](http://github.com/ffi/ffi) ~> 1.0
+* [libotr] >= 3.2.0
+* [ffi] ~> 1.0
 
 ## Install
 
@@ -44,3 +44,6 @@ See {file:LICENSE.txt} for license information.
 * Marius Hanne <marius.hanne@sourceagency.org>
 * Niklas E. Cathor <nilclass@riseup.net>
 * Julian Langschaedel <meta.rb@gmail.com>
+
+[libotr]: http://otr.cypherpunks.ca/
+[ffi]: http://github.com/ffi/ffi#readme
