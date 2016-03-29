@@ -4,7 +4,9 @@ description:
   Ruby FFI bindings for the Off-The-Record (OTR) Messaging Library.
 
 license: MIT
-authors: Postmodern
+authors:
+  - Postmodern
+  - Marius Hanne
 email: postmodern.mod3@gmail.com
 homepage: http://github.com/sophsec/ffi-otr
 has_yard: true
